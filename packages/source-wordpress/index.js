@@ -7,7 +7,7 @@ const TYPE_AUTHOR = 'author'
 const TYPE_ATTACHEMENT = 'attachment'
 
 class WordPressSource {
-  static defaultOptions () {
+  static defaultOptions() {
     return {
       baseUrl: '',
       apiBase: 'wp-json',
@@ -17,9 +17,9 @@ class WordPressSource {
     }
   }
 
-  constructor (api, options) {
+  constructor(api, options) {
     this.options = options
-    this.restBases = { posts: {}, taxonomies: {}}
+    this.restBases = { posts: {}, taxonomies: {} }
 
     if (!options.typeName) {
       throw new Error(`Missing typeName option.`)
@@ -52,7 +52,7 @@ class WordPressSource {
     })
   }
 
-  async getPostTypes (actions) {
+  async getPostTypes(actions) {
     const { data } = await this.fetch('wp/v2/types', {}, {})
     const addCollection = actions.addCollection || actions.addContentType
 
@@ -68,7 +68,7 @@ class WordPressSource {
     }
   }
 
-  async getUsers (actions) {
+  async getUsers(actions) {
     const data = await this.fetchPaged('wp/v2/users')
     const addCollection = actions.addCollection || actions.addContentType
 
@@ -90,7 +90,7 @@ class WordPressSource {
     }
   }
 
-  async getTaxonomies (actions) {
+  async getTaxonomies(actions) {
     const { data } = await this.fetch('wp/v2/taxonomies', {}, {})
     const addCollection = actions.addCollection || actions.addContentType
 
@@ -118,7 +118,7 @@ class WordPressSource {
     }
   }
 
-  async getPosts (actions) {
+  async getPosts(actions) {
     const { createReference } = actions
     const getCollection = actions.getCollection || actions.getContentType
 
@@ -160,7 +160,7 @@ class WordPressSource {
     }
   }
 
-  async getCustomEndpoints (actions) {
+  async getCustomEndpoints(actions) {
     for (const endpoint of this.customEndpoints) {
       const makeCollection = actions.addCollection || actions.addContentType
       const cepCollection = makeCollection({
@@ -180,7 +180,7 @@ class WordPressSource {
     }
   }
 
-  async fetch (url, params = {}, fallbackData = []) {
+  async fetch(url, params = {}, fallbackData = []) {
     let res
 
     try {
@@ -190,7 +190,7 @@ class WordPressSource {
         throw new Error(`${code} - ${config.url}`)
       }
 
-      if ([401, 403].includes(response.status)) {
+      if ([401, 403, 404].includes(response.status)) {
         console.warn(`Error: Status ${response.status} - ${config.url}`)
         return { ...response, data: fallbackData }
       } else {
@@ -201,7 +201,7 @@ class WordPressSource {
     return res
   }
 
-  async fetchPaged (path) {
+  async fetchPaged(path) {
     const { perPage, concurrent } = this.options
 
     return new Promise(async (resolve, reject) => {
@@ -245,7 +245,7 @@ class WordPressSource {
     })
   }
 
-  sanitizeCustomEndpoints () {
+  sanitizeCustomEndpoints() {
     if (!this.options.customEndpoints) return []
     if (!Array.isArray(this.options.customEndpoints)) throw Error('customEndpoints must be an array')
     this.options.customEndpoints.forEach(endpoint => {
@@ -259,7 +259,7 @@ class WordPressSource {
     return this.options.customEndpoints ? this.options.customEndpoints : []
   }
 
-  normalizeFields (fields) {
+  normalizeFields(fields) {
     const res = {}
 
     for (const key in fields) {
@@ -270,7 +270,7 @@ class WordPressSource {
     return res
   }
 
-  normalizeFieldValue (value) {
+  normalizeFieldValue(value) {
     if (value === null) return null
     if (value === undefined) return null
 
@@ -299,12 +299,12 @@ class WordPressSource {
     return value
   }
 
-  createTypeName (name = '') {
+  createTypeName(name = '') {
     return camelCase(`${this.options.typeName} ${name}`, { pascalCase: true })
   }
 }
 
-function ensureArrayData (url, data) {
+function ensureArrayData(url, data) {
   if (!Array.isArray(data)) {
     try {
       data = JSON.parse(data)
